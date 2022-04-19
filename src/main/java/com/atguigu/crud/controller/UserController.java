@@ -1,7 +1,9 @@
 package com.atguigu.crud.controller;
 
+import com.atguigu.crud.bean.Department;
 import com.atguigu.crud.bean.Msg;
 import com.atguigu.crud.bean.User;
+import com.atguigu.crud.service.DepartmentService;
 import com.atguigu.crud.service.UserService;
 import com.atguigu.crud.utils.FtpUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -66,28 +69,45 @@ public class UserController {
         return Msg.success().add("userList",userList);
     }
 
-    /**
-     * 登录
-     * @param userName
-     * @param password
-     * @param response
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    @PostMapping("login")
-    public Msg login(@RequestParam String userName, @RequestParam String password, HttpServletResponse response) throws UnsupportedEncodingException {
-        User user = userService.getUserByLogin(userName,password);
-        if(user != null){//登录成功
-            //生成Token令牌
-            String token = UUID.randomUUID()+"";
-            //存到Redis数据库
-            redisTemplate.opsForValue().set(token,user, Duration.ofMinutes(30L));
+//    /**
+//     * 登录
+//     * @param userName
+//     * @param password
+//     * @param response
+//     * @return
+//     * @throws UnsupportedEncodingException
+//     */
+//    @PostMapping("/login")
+//    public Msg login(@RequestParam String userName, @RequestParam String password, HttpServletResponse response) throws UnsupportedEncodingException {
+//        User user = userService.getUserByLogin(userName,password);
+//        if(user != null){//登录成功
+//            //生成Token令牌
+//            String token = UUID.randomUUID()+"";
+//            //存到Redis数据库
+//            redisTemplate.opsForValue().set(token,user, Duration.ofMinutes(30L));
+//
+////            return new Result(token,"登录成功",100);
+//            return Msg.success();
+//        }
+//
+////        return new Result(null,"登录失败",104);
+//        return Msg.fail();
+//    }
 
-//            return new Result(token,"登录成功",100);
-            return Msg.success();
-        }
+    @Autowired
+    private DepartmentService departmentService;
 
-//        return new Result(null,"登录失败",104);
-        return Msg.fail();
+    @RequestMapping("/login")
+    @ResponseBody
+    public Msg getLogin(){
+        //查出的所有部门信息
+        List<Department> list = departmentService.getDepts();
+
+        //生成Token令牌
+        String token = UUID.randomUUID()+"";
+        //存到Redis数据库
+        redisTemplate.opsForValue().set(token,list.toString(), Duration.ofMinutes(30L));
+
+        return Msg.success().add("loginInfo", token);
     }
 }

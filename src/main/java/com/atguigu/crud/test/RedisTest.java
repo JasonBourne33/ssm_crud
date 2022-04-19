@@ -9,6 +9,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.time.Duration;
+
 /***
  * @Author 徐庶   QQ:1092002729
  * @Slogan 致敬大师，致敬未来的你
@@ -24,11 +26,12 @@ public class RedisTest {
     public void testKeyTypeOperations(){
         // String类型
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set("name","徐庶");
+//        operations.set("name","chaoge");
+        operations.set("name","chaoge", Duration.ofMinutes(30L));
 
         System.out.println(operations.get("name"));
     }
-
+//
 //    @Test
 //    public void testKeyBoundOperations(){
 //        // String类型
